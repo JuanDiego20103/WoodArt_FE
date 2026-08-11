@@ -10,17 +10,23 @@
 <body>
     <header>
         <div class="nav-container">
-            <a href="/" class="logo">WoodArt</a>
+            <a href="{{ url_for('home.index') }}" class="logo">WoodArt</a>
             <button class="menu-toggle">☰</button>
             <nav>
                 <div class="dropdown">
                     <a href="#">Todas las categorias</a>
                     <div class="dropdown-content">
-                        <a href="#">Maderas</a>
-                        <a href="#">Muebles</a>
-                        <a href="#">Herrajes</a>
-                        <a href="#">Pisos</a>
-                        <a href="#">Puertas</a>
+                        <a href="{{ url_for('productos.index') }}">Todos los productos</a>
+
+<a href="{{ url_for('productos.maderas') }}">Maderas</a>
+
+<a href="{{ url_for('productos.muebles') }}">Muebles</a>
+
+<a href="{{ url_for('productos.herrajes') }}">Herrajes</a>
+
+<a href="{{ url_for('productos.pisos') }}">Pisos</a>
+
+<a href="{{ url_for('productos.puertas') }}">Puertas</a>
                     </div>
                 </div>
                 <form action="/buscar.html" method="get">

@@ -11,46 +11,61 @@
 
     <h1>Nuestros productos</h1>
 
+    <div class="actions">
+    <a href="{{ url_for('productos.nuevo') }}" class="btn-create">
+    + Crear producto
+    </a>
+</div>
+
     <!-- FILTROS -->
     <div class="filters">
-        <button>Todos</button>
-        <button>Maderas</button>
-        <button>Muebles</button>
-        <button>Puertas</button>
+
+    <a href="{{ url_for('productos.index') }}" class="filter-btn">Todos</a>
+
+    <a href="{{ url_for('productos.maderas') }}" class="filter-btn">Maderas</a>
+
+    <a href="{{ url_for('productos.muebles') }}" class="filter-btn">Muebles</a>
+
+    <a href="{{ url_for('productos.herrajes') }}" class="filter-btn">Herrajes</a>
+
+    <a href="{{ url_for('productos.pisos') }}" class="filter-btn">Pisos</a>
+
+    <a href="{{ url_for('productos.puertas') }}" class="filter-btn">Puertas</a>
+    
     </div>
 
     <!-- GRID -->
     <div class="product-grid">
 
-        <div class="card">
-            <img src="https://via.placeholder.com/250" alt="">
-            <h3>Mesa de roble</h3>
-            <p class="price">$250.000</p>
-            <button>Agregar al carrito</button>
-        </div>
+    {% if productos %}
+
+        {% for producto in productos %}
 
         <div class="card">
-            <img src="https://via.placeholder.com/250" alt="">
-            <h3>Silla moderna</h3>
-            <p class="price">$120.000</p>
+
+            <img src="{{ producto.imagen_principal }}" alt="{{ producto.nombre }}">
+
+            <h3>{{ producto.nombre }}</h3>
+
+            <p>{{ producto.descripcion }}</p>
+
+            <p class="price">
+                ${{ producto.precio }}
+            </p>
+
             <button>Agregar al carrito</button>
+
         </div>
 
-        <div class="card">
-            <img src="https://via.placeholder.com/250" alt="">
-            <h3>Puerta de madera</h3>
-            <p class="price">$500.000</p>
-            <button>Agregar al carrito</button>
-        </div>
+        {% endfor %}
 
-        <div class="card">
-            <img src="https://via.placeholder.com/250" alt="">
-            <h3>Closet rústico</h3>
-            <p class="price">$900.000</p>
-            <button>Agregar al carrito</button>
-        </div>
+    {% else %}
 
-    </div>
+        <p>No hay productos registrados.</p>
+
+    {% endif %}
+
+</div>
 
 </main>
 {% endblock %}

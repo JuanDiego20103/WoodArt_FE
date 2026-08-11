@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+
+{% block title %}Nuevo producto{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/nuevo_producto.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<div class="form-container">
+
+    <h1>Crear producto</h1>
+
+    <form method="POST" class="form-producto">
+
+        <label>Nombre</label>
+        <input type="text" name="nombre" required>
+
+        <label>Descripción</label>
+        <textarea name="descripcion"></textarea>
+
+        <label>Precio</label>
+        <input type="number" step="0.01" name="precio" required>
+
+        <label>Stock</label>
+        <input type="number" name="stock">
+
+        <label>Material</label>
+        <input type="text" name="material">
+
+        <label>Color</label>
+        <input type="text" name="color">
+
+        <label>Imagen principal (URL)</label>
+        <input type="text" name="imagen_principal">
+
+        <label>Dimensiones</label>
+        <input type="text" name="dimensiones">
+
+        <label>Peso</label>
+        <input type="number" step="0.01" name="peso">
+
+        <label>Categoría</label>
+        <select name="id_categoria">
+            <option value="1">Maderas</option>
+            <option value="2">Muebles</option>
+            <option value="3">Herrajes</option>
+            <option value="4">Pisos</option>
+            <option value="5">Puertas</option>
+        </select>
+
+        <button type="submit">Guardar producto</button>
+
+    </form>
+
+</div>
+
+{% endblock %}

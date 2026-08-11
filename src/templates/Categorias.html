@@ -1,0 +1,12 @@
+<h1>{{ categoria }}</h1>
+
+<div class="product-grid">
+    {% for producto in productos %}
+    <div class="card">
+        <img src="{{ producto.imagen_principal }}">
+        <h3>{{ producto.nombre }}</h3>
+        <p>${{ producto.precio }}</p>
+        <button>Agregar</button>
+    </div>
+    {% endfor %}
+</div>

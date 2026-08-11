@@ -1,23 +1,7 @@
+from src import create_app
 
-from flask import Flask, render_template, request, redirect
-
-app = Flask(__name__)
-
-@app.route("/")
-def index():
-    return render_template("index.html")
-
-@app.route("/login")
-def login():
-    return render_template("login.html")
-
-@app.route("/productos")
-def productos():
-    return render_template("productos.html")
-
-@app.route("/carrito")
-def carrito():
-    return render_template("carrito.html")
+app = create_app("development")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    print("frontend corriendo en http://localhost:5001")
+    app.run(debug=True, port=5001)
