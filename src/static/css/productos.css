@@ -112,3 +112,45 @@
 .btn-create:hover{
     background: #219150;
 }
+
+/* =========================
+   PAGINACIÓN
+========================= */
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 40px 0;
+}
+
+.page-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 40px;
+    height: 40px;
+
+    padding: 0 14px;
+
+    text-decoration: none;
+
+    border-radius: 6px;
+
+    background-color: #eeeeee;
+
+    color: #222;
+
+    font-weight: 600;
+}
+
+.page-btn:hover {
+    background-color: #d5d5d5;
+}
+
+.page-btn.active {
+    background-color: #333;
+    color: white;
+}

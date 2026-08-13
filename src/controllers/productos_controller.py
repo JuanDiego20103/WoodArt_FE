@@ -1,7 +1,9 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+
 from src.productos.api_productos import APIProductos, APIErrorProductos
 from src.productos.api_categorias import APICategorias, APIErrorCategorias
 from src.productos.api_Imagen_productos import APIImagenProductos, APIErrorImagenProductos
+
 
 productos_bp = Blueprint("productos", __name__)
 
@@ -10,31 +12,99 @@ def _producto():
     return APIProductos(session.get("api_token"))
 
 
-# ===========================
+# =========================================================
+# FUNCIÓN PARA OBTENER PRODUCTOS PAGINADOS
+# =========================================================
+
+def obtener_productos(page=1, id_categoria=None):
+
+    try:
+
+        params = {
+            "page": page,
+            "per_page": 8
+        }
+
+        # Si estamos dentro de una categoría
+        if id_categoria:
+            params["id_categoria"] = id_categoria
+
+        data = _producto().get(
+            "/productos",
+            params=params
+        )
+
+        # El backend nuevo devuelve un diccionario
+        if isinstance(data, dict):
+
+            productos = data.get("productos", [])
+
+            pagina_actual = data.get("pagina", 1)
+
+            total_paginas = data.get("total_paginas", 1)
+
+            total_productos = data.get("total_productos", 0)
+
+        else:
+
+            # Por si el backend todavía devuelve una lista
+            productos = data if isinstance(data, list) else []
+
+            pagina_actual = page
+
+            total_productos = len(productos)
+
+            total_paginas = 1
+
+        return (
+            productos,
+            pagina_actual,
+            total_paginas,
+            total_productos
+        )
+
+    except APIErrorProductos:
+
+        return [], 1, 1, 0
+
+
+# =========================================================
 # LISTAR TODOS LOS PRODUCTOS
-# ===========================
+# =========================================================
+
 @productos_bp.route("/")
 def index():
 
     q = request.args.get("q", "").strip()
 
-    try:
-        data = _producto().get("/productos")
-        productos = APIProductos.as_list(data)
+    page = request.args.get(
+        "page",
+        1,
+        type=int
+    )
 
-    except APIErrorProductos:
-        productos = []
+    (
+        productos,
+        pagina_actual,
+        total_paginas,
+        total_productos
+    ) = obtener_productos(page)
 
     return render_template(
         "productos.html",
         productos=productos,
-        q=q
+        q=q,
+        pagina_actual=pagina_actual,
+        total_paginas=total_paginas,
+        total_productos=total_productos,
+        endpoint="productos.index"
     )
 
 
-# ===========================
+# =========================================================
 # FORMULARIO NUEVO PRODUCTO
-# ===========================
+# =========================================================
+
 @productos_bp.route("/nuevo", methods=["GET", "POST"])
 def nuevo():
 
@@ -55,118 +125,192 @@ def nuevo():
 
         try:
 
-            _producto().post("/productos", data)
+            _producto().post(
+                "/productos",
+                data
+            )
 
-            flash("Producto creado correctamente", "success")
+            flash(
+                "Producto creado correctamente",
+                "success"
+            )
 
-            return redirect(url_for("productos.index"))
+            return redirect(
+                url_for("productos.index")
+            )
 
         except APIErrorProductos as e:
 
-            flash(e.message, "danger")
+            flash(
+                e.message,
+                "danger"
+            )
 
-    return render_template("nuevo_producto.html")
+    return render_template(
+        "nuevo_producto.html"
+    )
 
 
-# ===========================
-# CATEGORÍAS
-# ===========================
+# =========================================================
+# MADERAS
+# =========================================================
 
 @productos_bp.route("/maderas")
 def maderas():
 
-    try:
-        data = _producto().get(
-            "/productos",
-            params={"id_categoria": 1}
-        )
+    page = request.args.get(
+        "page",
+        1,
+        type=int
+    )
 
-        productos = APIProductos.as_list(data)
-
-    except APIErrorProductos:
-        productos = []
+    (
+        productos,
+        pagina_actual,
+        total_paginas,
+        total_productos
+    ) = obtener_productos(
+        page,
+        id_categoria=1
+    )
 
     return render_template(
         "Maderas.html",
-        productos=productos
+        productos=productos,
+        pagina_actual=pagina_actual,
+        total_paginas=total_paginas,
+        total_productos=total_productos,
+        endpoint="productos.maderas"
     )
 
+
+# =========================================================
+# MUEBLES
+# =========================================================
 
 @productos_bp.route("/muebles")
 def muebles():
 
-    try:
-        data = _producto().get(
-            "/productos",
-            params={"id_categoria": 2}
-        )
+    page = request.args.get(
+        "page",
+        1,
+        type=int
+    )
 
-        productos = APIProductos.as_list(data)
-
-    except APIErrorProductos:
-        productos = []
+    (
+        productos,
+        pagina_actual,
+        total_paginas,
+        total_productos
+    ) = obtener_productos(
+        page,
+        id_categoria=2
+    )
 
     return render_template(
         "Muebles.html",
-        productos=productos
+        productos=productos,
+        pagina_actual=pagina_actual,
+        total_paginas=total_paginas,
+        total_productos=total_productos,
+        endpoint="productos.muebles"
     )
 
+
+# =========================================================
+# HERRAJES
+# =========================================================
 
 @productos_bp.route("/herrajes")
 def herrajes():
 
-    try:
-        data = _producto().get(
-            "/productos",
-            params={"id_categoria": 3}
-        )
+    page = request.args.get(
+        "page",
+        1,
+        type=int
+    )
 
-        productos = APIProductos.as_list(data)
-
-    except APIErrorProductos:
-        productos = []
+    (
+        productos,
+        pagina_actual,
+        total_paginas,
+        total_productos
+    ) = obtener_productos(
+        page,
+        id_categoria=3
+    )
 
     return render_template(
         "Herrajes.html",
-        productos=productos
+        productos=productos,
+        pagina_actual=pagina_actual,
+        total_paginas=total_paginas,
+        total_productos=total_productos,
+        endpoint="productos.herrajes"
     )
 
+
+# =========================================================
+# PISOS
+# =========================================================
 
 @productos_bp.route("/pisos")
 def pisos():
 
-    try:
-        data = _producto().get(
-            "/productos",
-            params={"id_categoria": 4}
-        )
+    page = request.args.get(
+        "page",
+        1,
+        type=int
+    )
 
-        productos = APIProductos.as_list(data)
-
-    except APIErrorProductos:
-        productos = []
+    (
+        productos,
+        pagina_actual,
+        total_paginas,
+        total_productos
+    ) = obtener_productos(
+        page,
+        id_categoria=4
+    )
 
     return render_template(
         "Pisos.html",
-        productos=productos
+        productos=productos,
+        pagina_actual=pagina_actual,
+        total_paginas=total_paginas,
+        total_productos=total_productos,
+        endpoint="productos.pisos"
     )
 
+
+# =========================================================
+# PUERTAS
+# =========================================================
 
 @productos_bp.route("/puertas")
 def puertas():
 
-    try:
-        data = _producto().get(
-            "/productos",
-            params={"id_categoria": 5}
-        )
+    page = request.args.get(
+        "page",
+        1,
+        type=int
+    )
 
-        productos = APIProductos.as_list(data)
-
-    except APIErrorProductos:
-        productos = []
+    (
+        productos,
+        pagina_actual,
+        total_paginas,
+        total_productos
+    ) = obtener_productos(
+        page,
+        id_categoria=5
+    )
 
     return render_template(
         "Puertas.html",
-        productos=productos
+        productos=productos,
+        pagina_actual=pagina_actual,
+        total_paginas=total_paginas,
+        total_productos=total_productos,
+        endpoint="productos.puertas"
     )

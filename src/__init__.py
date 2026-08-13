@@ -7,7 +7,7 @@ def create_app(config_name='default'):
     app.config.from_object(config[config_name])
 
     from src.controllers.usuarios_controller import usuarios_bp
-    app.register_blueprint(usuarios_bp, url_prefix='/usuarios')
+    app.register_blueprint(usuarios_bp,)
     from src.controllers.productos_controller import productos_bp
     app.register_blueprint(productos_bp, url_prefix='/productos')
     from src.controllers.carrito_controller import carrito_bp

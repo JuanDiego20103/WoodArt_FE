@@ -33,8 +33,24 @@
                     <input type="text" name="q" placeholder="¿Que buscas?. . .">
                     <button type="submit">Buscar</button>
                 </form>
-                <a href="/login">Ingresar</a>
-                <a href="/carrito"><ion-icon name="cart-outline"></ion-icon></a>
+                {% if session.get("usuario") %}
+
+    <span>
+        Hola, {{ session["usuario"]["nombre"] }}
+    </span>
+
+    <a href="{{ url_for('usuarios.logout') }}">
+        Cerrar sesión
+    </a>
+
+{% else %}
+
+    <a href="{{ url_for('usuarios.mostrar_login') }}">
+        Iniciar sesión
+    </a>
+
+{% endif %}
+                <a href="{{ url_for('carrito.index') }}"><ion-icon name="cart-outline"></ion-icon></a>
             </nav>
         </div>
     </header>

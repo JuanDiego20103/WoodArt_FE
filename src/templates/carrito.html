@@ -1,22 +1,154 @@
 {% extends "layout.html" %}
 
-{% block title %}Carrito{% endblock %}
+{% block title %}Carrito - WoodArt{% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/carrito.css') }}">
 {% endblock %}
 
 {% block content %}
+
 <main class="cart-container">
 
     <h1>Tu carrito</h1>
 
-    <div class="empty-cart">
-        <img src="https://via.placeholder.com/150" alt="Carrito vacío">
-        <h2>Tu carrito está vacío</h2>
-        <p>Agrega productos para comenzar tu compra</p>
-        <a href="index.html" class="btn">Ver productos</a>
-    </div>
+    {% if carrito %}
+
+        <!-- ========================= -->
+        <!-- PRODUCTOS DEL CARRITO -->
+        <!-- ========================= -->
+
+        <div class="cart-items">
+
+            {% for item in carrito %}
+
+                <div class="cart-item">
+
+                    <!-- IMAGEN -->
+                    <div class="cart-image">
+
+                        {% if item.imagen_principal %}
+
+                            <img
+                                src="{{ item.imagen_principal }}"
+                                alt="{{ item.nombre }}"
+                            >
+
+                        {% else %}
+
+                            <img
+                                src="https://via.placeholder.com/150"
+                                alt="Producto sin imagen"
+                            >
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- INFORMACIÓN DEL PRODUCTO -->
+                    <div class="cart-info">
+
+                        <h2>
+                            {{ item.nombre }}
+                        </h2>
+
+                        <p>
+                            Precio:
+                            ${{ "{:,.0f}".format(item.precio) }}
+                        </p>
+
+                        <p>
+                            Cantidad:
+                            {{ item.cantidad }}
+                        </p>
+
+                        <p class="subtotal">
+                            Subtotal:
+                            ${{ "{:,.0f}".format(item.subtotal) }}
+                        </p>
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- ========================= -->
+        <!-- TOTAL -->
+        <!-- ========================= -->
+
+        <div class="cart-total">
+
+            <h2>Total del carrito</h2>
+
+            <p>
+                ${{ "{:,.0f}".format(
+                    carrito | sum(attribute='subtotal')
+                ) }}
+            </p>
+
+        </div>
+
+
+        <!-- ========================= -->
+        <!-- ACCIONES -->
+        <!-- ========================= -->
+
+        <div class="cart-actions">
+
+            <a
+                href="{{ url_for('productos.index') }}"
+                class="btn"
+            >
+                Seguir comprando
+            </a>
+
+            <button
+                type="button"
+                class="btn"
+            >
+                Finalizar compra
+            </button>
+
+        </div>
+
+
+    {% else %}
+
+        <!-- ========================= -->
+        <!-- CARRITO VACÍO -->
+        <!-- ========================= -->
+
+        <div class="empty-cart">
+
+            <img
+                src="https://via.placeholder.com/150"
+                alt="Carrito vacío"
+            >
+
+            <h2>
+                Tu carrito está vacío
+            </h2>
+
+            <p>
+                Agrega productos para comenzar tu compra
+            </p>
+
+            <a
+                href="{{ url_for('productos.index') }}"
+                class="btn"
+            >
+                Ver productos
+            </a>
+
+        </div>
+
+    {% endif %}
 
 </main>
+
 {% endblock %}
