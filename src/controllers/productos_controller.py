@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
 
 from src.productos.api_productos import APIProductos, APIErrorProductos
 from src.productos.api_categorias import APICategorias, APIErrorCategorias
@@ -16,14 +16,18 @@ def _producto():
 # FUNCIÓN PARA OBTENER PRODUCTOS PAGINADOS
 # =========================================================
 
-def obtener_productos(page=1, id_categoria=None):
+def obtener_productos(page=1, id_categoria=None, q=None, per_page=8):
 
     try:
 
         params = {
             "page": page,
-            "per_page": 8
+            "per_page": per_page
         }
+
+        # Texto del buscador
+        if q:
+            params["q"] = q
 
         # Si estamos dentro de una categoría
         if id_categoria:
@@ -88,7 +92,7 @@ def index():
         pagina_actual,
         total_paginas,
         total_productos
-    ) = obtener_productos(page)
+    ) = obtener_productos(page, q=q)
 
     return render_template(
         "productos.html",
@@ -99,6 +103,34 @@ def index():
         total_productos=total_productos,
         endpoint="productos.index"
     )
+
+
+# =========================================================
+# SUGERENCIAS DEL BUSCADOR (mientras se escribe)
+# =========================================================
+
+@productos_bp.route("/sugerencias")
+def sugerencias():
+
+    q = request.args.get("q", "").strip()
+
+    if len(q) < 2:
+        return jsonify({"productos": [], "total": 0})
+
+    productos, _, _, total = obtener_productos(1, q=q, per_page=5)
+
+    return jsonify({
+        "productos": [
+            {
+                "id": p.get("id"),
+                "nombre": p.get("nombre"),
+                "precio": p.get("precio"),
+                "imagen_principal": p.get("imagen_principal")
+            }
+            for p in productos
+        ],
+        "total": total
+    })
 
 
 # =========================================================
@@ -313,4 +345,4 @@ def puertas():
         total_paginas=total_paginas,
         total_productos=total_productos,
         endpoint="productos.puertas"
-    )
+    )

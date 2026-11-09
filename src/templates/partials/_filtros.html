@@ -1,0 +1,15 @@
+{# Filtros de categoría. Marca como activo el de la página actual. #}
+{% set filtros = [
+    ("productos.index", "Todos"),
+    ("productos.maderas", "Maderas"),
+    ("productos.muebles", "Muebles"),
+    ("productos.herrajes", "Herrajes"),
+    ("productos.pisos", "Pisos"),
+    ("productos.puertas", "Puertas")
+] %}
+
+<div class="filters">
+    {% for ruta, nombre in filtros %}
+    <a href="{{ url_for(ruta) }}" class="filter-btn {{ 'activo' if request.endpoint == ruta }}">{{ nombre }}</a>
+    {% endfor %}
+</div>

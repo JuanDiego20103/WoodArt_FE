@@ -69,6 +69,7 @@
 
     <div class="container-form">
 
+        {% if tienda.registro_abierto %}
         <form class="sing-up" method="POST" action="{{ url_for('usuarios.registro') }}">
 
             <h2>Registrarse</h2>
@@ -157,6 +158,12 @@
             </button>
 
         </form>
+        {% else %}
+        <div class="sing-up registro-cerrado">
+            <h2>Registrarse</h2>
+            <span>El registro de nuevas cuentas está cerrado por ahora. Vuelve a intentarlo más tarde.</span>
+        </div>
+        {% endif %}
 
     </div>
 
@@ -166,18 +173,4 @@
 {% endblock %}
 
 
-{% block scripts %}
-
-<script src="{{ url_for('static', filename='script.js') }}"></script>
-
-<script
-    type="module"
-    src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js">
-</script>
-
-<script
-    nomodule
-    src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js">
-</script>
-
-{% endblock %}
+{# Los íconos y el JavaScript general se cargan desde layout.html #}

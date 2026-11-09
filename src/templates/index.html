@@ -1,67 +1,136 @@
 {% extends "layout.html" %}
 
-{% block title %}WoodArt{% endblock %}
+{% block title %}{{ tienda.nombre_tienda }} - Muebles y productos en madera{% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
 {% endblock %}
 
 {% block content %}
-<section class="hero">
+
+<!-- ========================= -->
+<!-- PORTADA -->
+<!-- ========================= -->
+
+<section class="hero vetas">
     <div class="hero-content">
-        <h1>Muebles de madera con estilo</h1>
-        <p>Calidad artesanal para tu hogar</p>
-        <a href="/productos" class="btn">Ver productos</a>
-    </div>
-</section>
-
-<!-- PRODUCTOS -->
-<section class="products">
-    <h2>Productos destacados</h2>
-
-    <div class="product-grid">
-        <div class="card">
-            <img src="https://via.placeholder.com/200" alt="">
-            <h3>Mesa de roble</h3>
-            <p>$250.000</p>
-            <button>Agregar</button>
-        </div>
-
-        <div class="card">
-            <img src="https://via.placeholder.com/200" alt="">
-            <h3>Silla clásica</h3>
-            <p>$120.000</p>
-            <button>Agregar</button>
-        </div>
-
-        <div class="card">
-            <img src="https://via.placeholder.com/200" alt="">
-            <h3>Armario rústico</h3>
-            <p>$800.000</p>
-            <button>Agregar</button>
+        <span class="hero-etiqueta"><ion-icon name="leaf-outline"></ion-icon> Calidad artesanal</span>
+        <h1>Muebles de madera <span>con estilo</span></h1>
+        <p>Maderas, muebles, pisos, puertas y herrajes seleccionados para darle calidez a cada espacio de tu hogar.</p>
+        <div class="hero-acciones">
+            <a href="{{ url_for('productos.index') }}" class="boton boton-naranja">
+                Ver productos <ion-icon name="arrow-forward-outline"></ion-icon>
+            </a>
+            <a href="#categorias" class="boton boton-borde">Explorar categorías</a>
         </div>
     </div>
 </section>
 
+<!-- ========================= -->
+<!-- BENEFICIOS -->
+<!-- ========================= -->
+
+<section class="beneficios contenedor">
+    <div class="beneficio">
+        <ion-icon name="hammer-outline"></ion-icon>
+        <div>
+            <strong>Hecho con detalle</strong>
+            <span>Acabados cuidados en cada pieza</span>
+        </div>
+    </div>
+    <div class="beneficio">
+        <ion-icon name="leaf-outline"></ion-icon>
+        <div>
+            <strong>Madera seleccionada</strong>
+            <span>Materiales resistentes y duraderos</span>
+        </div>
+    </div>
+    <div class="beneficio">
+        <ion-icon name="shield-checkmark-outline"></ion-icon>
+        <div>
+            <strong>Compra segura</strong>
+            <span>Tu carrito siempre guardado en tu cuenta</span>
+        </div>
+    </div>
+</section>
+
+<!-- ========================= -->
+<!-- CATEGORÍAS -->
+<!-- ========================= -->
+
+<section class="seccion contenedor" id="categorias">
+
+    <div class="titulo-seccion">
+        <span class="antetitulo">Categorías</span>
+        <h2>¿Qué estás buscando?</h2>
+    </div>
+
+    {% set categorias = [
+        ("productos.maderas", "Maderas", "leaf-outline", "Para tus proyectos"),
+        ("productos.muebles", "Muebles", "bed-outline", "Para cada espacio"),
+        ("productos.herrajes", "Herrajes", "construct-outline", "Para la instalación"),
+        ("productos.pisos", "Pisos", "grid-outline", "Laminados y en madera"),
+        ("productos.puertas", "Puertas", "home-outline", "Resistentes y elegantes")
+    ] %}
+
+    <div class="grid-categorias">
+        {% for ruta, nombre, icono, texto in categorias %}
+        <a href="{{ url_for(ruta) }}" class="tarjeta-categoria">
+            <span class="icono"><ion-icon name="{{ icono }}"></ion-icon></span>
+            <strong>{{ nombre }}</strong>
+            <small>{{ texto }}</small>
+        </a>
+        {% endfor %}
+    </div>
+
+</section>
+
+<!-- ========================= -->
+<!-- PRODUCTOS DESTACADOS -->
+<!-- ========================= -->
+
+<section class="seccion contenedor">
+
+    <div class="titulo-seccion">
+        <span class="antetitulo">Destacados</span>
+        <h2>Productos destacados</h2>
+    </div>
+
+    <div class="grid-productos">
+        {% for producto in destacados %}
+            {% include "partials/_tarjeta_producto.html" %}
+        {% else %}
+            <div class="vacio">
+                <ion-icon name="cube-outline"></ion-icon>
+                Muy pronto tendremos productos destacados aquí.
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if destacados %}
+    <div class="ver-todos">
+        <a href="{{ url_for('productos.index') }}" class="boton boton-oscuro">
+            Ver todo el catálogo <ion-icon name="arrow-forward-outline"></ion-icon>
+        </a>
+    </div>
+    {% endif %}
+
+</section>
+
+<!-- ========================= -->
 <!-- OFERTAS -->
-<section class="offers">
-    <h2>Ofertas especiales</h2>
+<!-- ========================= -->
 
-    <div class="offer-banner">
-        <p>🔥 20% de descuento en muebles seleccionados</p>
-        <a href="#" class="btn">Aprovechar</a>
+{% if tienda.mensaje_oferta %}
+<section class="contenedor">
+    <div class="offer-banner vetas">
+        <div>
+            <span class="antetitulo">Ofertas especiales</span>
+            <p>{{ tienda.mensaje_oferta }}</p>
+        </div>
+        <a href="{{ url_for('productos.index') }}" class="boton boton-naranja">Aprovechar</a>
     </div>
 </section>
-{% endblock %}
+{% endif %}
 
-{% block scripts %}
-<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-<script>
-const toggle = document.querySelector('.menu-toggle');
-const nav = document.querySelector('nav');
-
-toggle.addEventListener('click', () => {
-    nav.classList.toggle('active');
-});
-</script>
 {% endblock %}

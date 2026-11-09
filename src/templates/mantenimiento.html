@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>En mantenimiento - {{ tienda.nombre_tienda }}</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body class="admin">
+
+<div class="admin-login">
+    <div class="login-card" style="min-height: 0; width: 620px;">
+        <div class="login-lado vetas" style="text-align: center; align-items: center; padding: 56px 40px;">
+            <a href="{{ url_for('home.index') }}" class="login-logo">
+                <img src="{{ url_for('static', filename='img/woodart-logo-claro.svg') }}" alt="{{ tienda.nombre_tienda }} — Muebles de madera">
+            </a>
+            <ion-icon name="construct-outline" style="font-size: 54px; color: var(--naranja); margin: 30px 0 10px;"></ion-icon>
+            <h1 style="margin: 10px 0;">Volvemos pronto</h1>
+            <p>{{ tienda.mensaje_mantenimiento }}</p>
+            <p class="login-nota"><a href="{{ url_for('admin.login') }}" style="color: #9a9a9a;">Acceso administradores</a></p>
+        </div>
+    </div>
+</div>
+
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+</body>
+</html>

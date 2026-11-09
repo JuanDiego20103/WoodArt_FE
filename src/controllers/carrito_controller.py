@@ -82,3 +82,38 @@ def agregar():
         return {
             "error": e.message
         }, e.status_code
+
+
+@carrito_bp.route('/eliminar/<int:id_carrito>', methods=['POST'])
+def eliminar(id_carrito):
+
+    if not session.get("usuario"):
+
+        flash(
+            "Debes iniciar sesión para modificar tu carrito.",
+            "error"
+        )
+
+        return redirect(
+            url_for("usuarios.mostrar_login")
+        )
+
+    try:
+
+        _carrito().delete(f"/carrito/{id_carrito}")
+
+        flash(
+            "Producto eliminado del carrito.",
+            "success"
+        )
+
+    except APIErrorCarrito as e:
+
+        flash(
+            e.message,
+            "error"
+        )
+
+    return redirect(
+        url_for("carrito.index")
+    )

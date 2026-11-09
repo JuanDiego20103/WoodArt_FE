@@ -21,10 +21,12 @@ body{
     min-height: 500px;
     display: flex;
     gap: 20px;
-    margin: 40px auto 0;
+    margin: 48px auto 0;
+    padding: 20px 10px;
     background: white;
     border-radius: 16px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    border-top: 4px solid #f39c12;
 }
 
 .container-form{
@@ -92,4 +94,87 @@ body{
     margin-top: 10px;
     background-color: #3AB397;
     color: white;
+}
+/* Registro cerrado desde el panel de administración */
+.registro-cerrado {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 0 30px;
+}
+
+/* =========================
+   AJUSTES DE TEMÁTICA
+========================= */
+
+.container-form + .container-form {
+    border-left: 1px solid #eeeeee;
+}
+
+.container-input {
+    border-radius: 8px;
+    border: 2px solid transparent;
+    transition: border-color .2s, background .2s;
+}
+
+.container-input:focus-within {
+    border-color: #f39c12;
+    background: white;
+}
+
+.container-input ion-icon {
+    color: #8a8a8a;
+}
+
+.social-networks ion-icon {
+    transition: border-color .2s, color .2s;
+}
+
+.social-networks ion-icon:hover {
+    border-color: #f39c12;
+    color: #d68910;
+}
+
+.button {
+    background-color: #f39c12;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 500;
+    letter-spacing: .03em;
+    transition: background .2s;
+}
+
+.button:hover {
+    background-color: #d68910;
+}
+
+.sing-up .button {
+    background-color: #222;
+}
+
+.sing-up .button:hover {
+    background-color: #3a3a3a;
+}
+
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        margin: 24px 16px 0;
+        width: auto;
+        padding: 30px 10px;
+    }
+
+    .container-form + .container-form {
+        border-left: none;
+        border-top: 1px solid #eeeeee;
+        padding-top: 30px;
+    }
+
+    .container-input {
+        width: 100%;
+        max-width: 300px;
+    }
 }

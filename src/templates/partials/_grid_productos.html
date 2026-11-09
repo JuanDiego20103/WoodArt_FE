@@ -1,0 +1,13 @@
+{# Grilla de productos con estado vacío y paginación. #}
+<div class="grid-productos">
+    {% for producto in productos %}
+        {% include "partials/_tarjeta_producto.html" %}
+    {% else %}
+        <div class="vacio">
+            <ion-icon name="cube-outline"></ion-icon>
+            {{ mensaje_vacio | default("No hay productos disponibles por ahora.") }}
+        </div>
+    {% endfor %}
+</div>
+
+{% include "partials/_paginacion.html" %}

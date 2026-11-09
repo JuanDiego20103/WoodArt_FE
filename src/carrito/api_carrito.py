@@ -14,7 +14,7 @@ class APICarrito:
         self.base_url = current_app.config['API_BASE_URL']
         self.headers  = {'Content-Type': 'application/json'}
         if token:
-            self.headers['X-Auth-Token'] = token
+            self.headers['Authorization'] = f'Bearer {token}'
 
     def _url(self, path: str) -> str:
         ful_url = f"{self.base_url.rstrip('/')}/{path.lstrip('/')}"
@@ -74,10 +74,14 @@ class APICarrito:
             r = httpx.post(self._url(path), json=data, headers=self.headers, timeout=10)
             return self._handle(r)
 
+    def delete(self, path):
+        r = httpx.delete(self._url(path), headers=self.headers, timeout=10)
+        return self._handle(r)
+
     @staticmethod
     def as_list(data):
         if isinstance(data, list):
             return data
         if isinstance(data, dict):
             return data.get('items') or data.get('results') or []
-        return []
+        return []

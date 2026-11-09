@@ -42,6 +42,7 @@ def login():
         )
 
         session["usuario"] = respuesta["usuario"]
+        session["api_token"] = respuesta["access_token"]
 
         flash(
             "Inicio de sesión exitoso.",
@@ -71,6 +72,7 @@ def login():
 def logout():
 
     session.pop("usuario", None)
+    session.pop("api_token", None)
 
     flash(
         "Sesión cerrada correctamente.",

@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 
-{% block title %}Carrito - WoodArt{% endblock %}
+{% block title %}Carrito - {{ tienda.nombre_tienda }}{% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/carrito.css') }}">
@@ -8,11 +8,16 @@
 
 {% block content %}
 
-<main class="cart-container">
+<main class="cart-container contenedor">
 
-    <h1>Tu carrito</h1>
+    <div class="titulo-seccion">
+        <span class="antetitulo">Tu compra</span>
+        <h1>Tu carrito</h1>
+    </div>
 
     {% if carrito %}
+
+    <div class="cart-layout">
 
         <!-- ========================= -->
         <!-- PRODUCTOS DEL CARRITO -->
@@ -21,131 +26,79 @@
         <div class="cart-items">
 
             {% for item in carrito %}
+            <article class="cart-item">
 
-                <div class="cart-item">
-
-                    <!-- IMAGEN -->
-                    <div class="cart-image">
-
-                        {% if item.imagen_principal %}
-
-                            <img
-                                src="{{ item.imagen_principal }}"
-                                alt="{{ item.nombre }}"
-                            >
-
-                        {% else %}
-
-                            <img
-                                src="https://via.placeholder.com/150"
-                                alt="Producto sin imagen"
-                            >
-
-                        {% endif %}
-
-                    </div>
-
-
-                    <!-- INFORMACIÓN DEL PRODUCTO -->
-                    <div class="cart-info">
-
-                        <h2>
-                            {{ item.nombre }}
-                        </h2>
-
-                        <p>
-                            Precio:
-                            ${{ "{:,.0f}".format(item.precio) }}
-                        </p>
-
-                        <p>
-                            Cantidad:
-                            {{ item.cantidad }}
-                        </p>
-
-                        <p class="subtotal">
-                            Subtotal:
-                            ${{ "{:,.0f}".format(item.subtotal) }}
-                        </p>
-
-                    </div>
-
+                <div class="cart-image">
+                    {% if item.imagen_principal %}
+                    <img src="{{ item.imagen_principal }}" alt="{{ item.nombre }}" onerror="imagenNoDisponible(this)">
+                    {% else %}
+                    <ion-icon name="image-outline" class="sin-foto"></ion-icon>
+                    {% endif %}
                 </div>
 
+                <div class="cart-info">
+                    <h2>{{ item.nombre }}</h2>
+                    <p class="detalle">{{ item.precio | cop }} c/u · Cantidad: {{ item.cantidad }}</p>
+                </div>
+
+                <div class="cart-acciones">
+                    <p class="subtotal">{{ item.subtotal | cop }}</p>
+
+                    <form method="POST" action="{{ url_for('carrito.eliminar', id_carrito=item.id_carrito) }}"
+                          onsubmit='return confirm({{ ("¿Quitar " ~ item.nombre ~ " del carrito?") | tojson }});'>
+                        <button type="submit" class="btn-eliminar" aria-label="Quitar {{ item.nombre }} del carrito">
+                            <ion-icon name="trash-outline"></ion-icon> Quitar
+                        </button>
+                    </form>
+                </div>
+
+            </article>
             {% endfor %}
 
         </div>
 
-
         <!-- ========================= -->
-        <!-- TOTAL -->
-        <!-- ========================= -->
-
-        <div class="cart-total">
-
-            <h2>Total del carrito</h2>
-
-            <p>
-                ${{ "{:,.0f}".format(
-                    carrito | sum(attribute='subtotal')
-                ) }}
-            </p>
-
-        </div>
-
-
-        <!-- ========================= -->
-        <!-- ACCIONES -->
+        <!-- RESUMEN -->
         <!-- ========================= -->
 
-        <div class="cart-actions">
+        <aside class="cart-total">
 
-            <a
-                href="{{ url_for('productos.index') }}"
-                class="btn"
-            >
-                Seguir comprando
-            </a>
+            <h2>Resumen</h2>
 
-            <button
-                type="button"
-                class="btn"
-            >
-                Finalizar compra
+            <div class="fila">
+                <span>Productos</span>
+                <span>{{ carrito | sum(attribute='cantidad') }}</span>
+            </div>
+
+            <div class="fila total">
+                <span>Total</span>
+                <strong>{{ carrito | sum(attribute='subtotal') | cop }}</strong>
+            </div>
+
+            <button type="button" class="boton boton-naranja">
+                <ion-icon name="lock-closed-outline"></ion-icon> Finalizar compra
             </button>
 
-        </div>
+            <a href="{{ url_for('productos.index') }}" class="seguir">
+                <ion-icon name="arrow-back-outline"></ion-icon> Seguir comprando
+            </a>
 
+        </aside>
+
+    </div>
 
     {% else %}
 
-        <!-- ========================= -->
-        <!-- CARRITO VACÍO -->
-        <!-- ========================= -->
+    <!-- ========================= -->
+    <!-- CARRITO VACÍO -->
+    <!-- ========================= -->
 
-        <div class="empty-cart">
-
-            <img
-                src="https://via.placeholder.com/150"
-                alt="Carrito vacío"
-            >
-
-            <h2>
-                Tu carrito está vacío
-            </h2>
-
-            <p>
-                Agrega productos para comenzar tu compra
-            </p>
-
-            <a
-                href="{{ url_for('productos.index') }}"
-                class="btn"
-            >
-                Ver productos
-            </a>
-
-        </div>
+    <div class="empty-cart">
+        <span class="icono-vacio"><ion-icon name="cart-outline"></ion-icon></span>
+        <h2>Tu carrito está vacío</h2>
+        <p>Agrega productos para comenzar tu compra.</p>
+        <a href="{{ url_for('productos.index') }}" class="boton boton-naranja">Ver productos</a>
+    </div>
 
     {% endif %}
 

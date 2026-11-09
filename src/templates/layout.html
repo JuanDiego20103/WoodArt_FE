@@ -1,63 +1,174 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}WoodArt{% endblock %}</title>
+    <title>{% block title %}{{ tienda.nombre_tienda }}{% endblock %}</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
     {% block extra_head %}{% endblock %}
 </head>
 <body>
-    <header>
+
+    {% set usuario = session.get("usuario") %}
+    {% set es_admin = usuario and usuario.get("rol") == "admin" %}
+
+    <!-- ========================= -->
+    <!-- ENCABEZADO -->
+    <!-- ========================= -->
+
+    <header class="encabezado-tienda">
         <div class="nav-container">
-            <a href="{{ url_for('home.index') }}" class="logo">WoodArt</a>
-            <button class="menu-toggle">☰</button>
-            <nav>
+
+            <a href="{{ url_for('home.index') }}" class="logo">
+                <img src="{{ url_for('static', filename='img/woodart-wordmark.svg') }}" alt="{{ tienda.nombre_tienda }}">
+            </a>
+
+            <button class="menu-toggle" type="button" aria-label="Abrir menú" aria-expanded="false">
+                <ion-icon name="menu-outline"></ion-icon>
+            </button>
+
+            <nav id="menu-principal">
+
                 <div class="dropdown">
-                    <a href="#">Todas las categorias</a>
+                    <a href="{{ url_for('productos.index') }}" class="nav-link">
+                        Categorías <ion-icon name="chevron-down-outline"></ion-icon>
+                    </a>
                     <div class="dropdown-content">
                         <a href="{{ url_for('productos.index') }}">Todos los productos</a>
-
-<a href="{{ url_for('productos.maderas') }}">Maderas</a>
-
-<a href="{{ url_for('productos.muebles') }}">Muebles</a>
-
-<a href="{{ url_for('productos.herrajes') }}">Herrajes</a>
-
-<a href="{{ url_for('productos.pisos') }}">Pisos</a>
-
-<a href="{{ url_for('productos.puertas') }}">Puertas</a>
+                        <a href="{{ url_for('productos.maderas') }}">Maderas</a>
+                        <a href="{{ url_for('productos.muebles') }}">Muebles</a>
+                        <a href="{{ url_for('productos.herrajes') }}">Herrajes</a>
+                        <a href="{{ url_for('productos.pisos') }}">Pisos</a>
+                        <a href="{{ url_for('productos.puertas') }}">Puertas</a>
                     </div>
                 </div>
-                <form action="/buscar.html" method="get">
-                    <input type="text" name="q" placeholder="¿Que buscas?. . .">
+
+                <form action="{{ url_for('productos.index') }}" method="get" class="buscador" role="search">
+                    <ion-icon name="search-outline"></ion-icon>
+                    <input type="search" name="q" placeholder="¿Qué buscas?" aria-label="Buscar productos"
+                           value="{{ request.args.get('q', '') }}" autocomplete="off"
+                           role="combobox" aria-expanded="false" aria-controls="sugerencias" aria-autocomplete="list">
                     <button type="submit">Buscar</button>
+                    <div class="sugerencias" id="sugerencias" role="listbox" hidden></div>
                 </form>
-                {% if session.get("usuario") %}
 
-    <span>
-        Hola, {{ session["usuario"]["nombre"] }}
-    </span>
+                <div class="nav-usuario">
 
-    <a href="{{ url_for('usuarios.logout') }}">
-        Cerrar sesión
-    </a>
+                    {% if es_admin %}
+                    <a href="{{ url_for('admin.dashboard') }}" class="link-admin">
+                        <ion-icon name="stats-chart-outline"></ion-icon> Panel admin
+                    </a>
+                    {% endif %}
 
-{% else %}
+                    {% if usuario %}
+                    <span class="saludo">
+                        <ion-icon name="person-circle-outline"></ion-icon>
+                        Hola, {{ usuario["nombre"] }}
+                    </span>
+                    <a href="{{ url_for('usuarios.logout') }}" class="nav-link">Cerrar sesión</a>
+                    {% else %}
+                    <a href="{{ url_for('usuarios.mostrar_login') }}" class="nav-link">
+                        <ion-icon name="person-outline"></ion-icon> Iniciar sesión
+                    </a>
+                    {% endif %}
 
-    <a href="{{ url_for('usuarios.mostrar_login') }}">
-        Iniciar sesión
-    </a>
+                    <a href="{{ url_for('carrito.index') }}" class="icono-carrito" aria-label="Ver carrito" title="Carrito">
+                        <ion-icon name="cart-outline"></ion-icon>
+                    </a>
 
-{% endif %}
-                <a href="{{ url_for('carrito.index') }}"><ion-icon name="cart-outline"></ion-icon></a>
+                </div>
+
             </nav>
         </div>
     </header>
+
+    {% if tienda.modo_mantenimiento and es_admin %}
+    <div class="aviso-tienda">
+        La tienda está en modo mantenimiento: solo los administradores la ven.
+        <a href="{{ url_for('admin.configuracion') }}">Cambiar</a>
+    </div>
+    {% endif %}
+
+    {% with mensajes = get_flashed_messages(with_categories=true) %}
+    {% if mensajes %}
+    <div class="flashes">
+        {% for categoria, mensaje in mensajes %}
+        <div class="flash {{ categoria }}">{{ mensaje }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
     <div class="page-content">
         {% block content %}{% endblock %}
     </div>
-    {% block footer %}{% endblock %}
+
+    <!-- ========================= -->
+    <!-- PIE DE PÁGINA -->
+    <!-- ========================= -->
+
+    {% block footer %}
+    <footer class="pie-pagina vetas">
+
+        <div class="pie-contenido">
+
+            <div class="pie-marca">
+                <a href="{{ url_for('home.index') }}" class="logo">
+                    <img src="{{ url_for('static', filename='img/woodart-logo-claro.svg') }}" alt="{{ tienda.nombre_tienda }} — Muebles de madera">
+                </a>
+                <p>Muebles, maderas y acabados con calidad artesanal para darle calidez a cada espacio de tu hogar.</p>
+                <div class="pie-redes">
+                    <a href="#" aria-label="Facebook"><ion-icon name="logo-facebook"></ion-icon></a>
+                    <a href="#" aria-label="Instagram"><ion-icon name="logo-instagram"></ion-icon></a>
+                    <a href="#" aria-label="WhatsApp"><ion-icon name="logo-whatsapp"></ion-icon></a>
+                </div>
+            </div>
+
+            <div class="pie-columna">
+                <h4>Categorías</h4>
+                <a href="{{ url_for('productos.maderas') }}">Maderas</a>
+                <a href="{{ url_for('productos.muebles') }}">Muebles</a>
+                <a href="{{ url_for('productos.herrajes') }}">Herrajes</a>
+                <a href="{{ url_for('productos.pisos') }}">Pisos</a>
+                <a href="{{ url_for('productos.puertas') }}">Puertas</a>
+            </div>
+
+            <div class="pie-columna">
+                <h4>Tu cuenta</h4>
+                {% if usuario %}
+                <a href="{{ url_for('usuarios.logout') }}">Cerrar sesión</a>
+                {% else %}
+                <a href="{{ url_for('usuarios.mostrar_login') }}">Iniciar sesión</a>
+                <a href="{{ url_for('usuarios.mostrar_login') }}">Crear cuenta</a>
+                {% endif %}
+                <a href="{{ url_for('carrito.index') }}">Mi carrito</a>
+                <a href="{{ url_for('productos.index') }}">Todos los productos</a>
+            </div>
+
+            <div class="pie-columna">
+                <h4>Contacto</h4>
+                <span><ion-icon name="mail-outline"></ion-icon> contacto@woodart.com</span>
+                <span><ion-icon name="location-outline"></ion-icon> Colombia</span>
+                <span><ion-icon name="time-outline"></ion-icon> Lunes a sábado</span>
+            </div>
+
+        </div>
+
+        <div class="pie-inferior">
+            <span>© {{ anio_actual }} {{ tienda.nombre_tienda }}. Todos los derechos reservados.</span>
+            <a href="{{ url_for('admin.login') }}">Acceso administradores</a>
+        </div>
+
+    </footer>
+    {% endblock %}
+
+    <!-- Aviso flotante (lo usa el carrito) -->
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <script src="{{ url_for('static', filename='js/tienda.js') }}"></script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

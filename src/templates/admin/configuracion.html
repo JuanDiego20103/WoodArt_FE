@@ -1,0 +1,155 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Configuración{% endblock %}
+
+{% block content %}
+
+<div class="encabezado">
+    <div>
+        <h1>Configuración del sistema</h1>
+        <p>Los cambios se aplican en la tienda en unos segundos.</p>
+    </div>
+</div>
+
+<!-- ========================= -->
+<!-- AJUSTES DE LA TIENDA -->
+<!-- ========================= -->
+
+<section class="tarjeta" style="margin-bottom: 18px;">
+
+    <div class="tarjeta-titulo">
+        <h2>Ajustes de la tienda</h2>
+    </div>
+
+    {% if campos %}
+    <form method="POST" action="{{ url_for('admin.configuracion') }}" class="ajustes">
+
+        {% for c in campos %}
+        <div class="ajuste">
+
+            <div>
+                <label for="{{ c.clave }}">{{ c.etiqueta }}</label>
+                <p>{{ c.descripcion }}</p>
+            </div>
+
+            <div>
+                <input type="hidden" name="claves" value="{{ c.clave }}">
+                <input type="hidden" name="tipo_{{ c.clave }}" value="{{ c.tipo }}">
+
+                {% if c.tipo == "booleano" %}
+                <label class="interruptor">
+                    <input type="checkbox" id="{{ c.clave }}" name="{{ c.clave }}" {{ 'checked' if c.valor }}>
+                    <span class="pastilla"></span>
+                    <span class="estado-texto"></span>
+                </label>
+                {% elif c.tipo == "entero" %}
+                <input type="number" id="{{ c.clave }}" name="{{ c.clave }}" value="{{ c.valor }}" min="0" step="1" required>
+                {% else %}
+                <input type="text" id="{{ c.clave }}" name="{{ c.clave }}" value="{{ c.valor }}" maxlength="255"
+                       {{ 'required' if c.clave == 'nombre_tienda' }}>
+                {% endif %}
+            </div>
+
+        </div>
+        {% endfor %}
+
+        <div class="acciones-form">
+            <a href="{{ url_for('admin.configuracion') }}" class="btn btn-claro">Descartar</a>
+            <button type="submit" class="btn btn-naranja">
+                <ion-icon name="save-outline"></ion-icon> Guardar cambios
+            </button>
+        </div>
+
+    </form>
+    {% else %}
+    <div class="vacio">
+        <ion-icon name="cloud-offline-outline"></ion-icon>
+        No se pudo cargar la configuración.
+    </div>
+    {% endif %}
+
+</section>
+
+<!-- ========================= -->
+<!-- USUARIOS Y ROLES -->
+<!-- ========================= -->
+
+<section class="tarjeta" id="usuarios">
+
+    <div class="tarjeta-titulo">
+        <h2>Usuarios y roles</h2>
+        <label class="buscador">
+            <ion-icon name="search-outline"></ion-icon>
+            <input type="search" id="buscar-usuario" placeholder="Buscar por nombre o correo" aria-label="Buscar usuario">
+        </label>
+    </div>
+
+    {% if usuarios %}
+    {% set yo = session.get("usuario", {}).get("id_usuario") %}
+    <div class="tabla-envoltura">
+        <table class="tabla" id="tabla-usuarios">
+            <thead>
+                <tr><th>Usuario</th><th>Correo</th><th>Registro</th><th>Rol</th><th class="numero">Acción</th></tr>
+            </thead>
+            <tbody>
+                {% for u in usuarios %}
+                <tr data-buscar="{{ (u.nombre ~ ' ' ~ (u.apellido or '') ~ ' ' ~ u.email) | lower }}">
+                    <td>{{ u.nombre }} {{ u.apellido or "" }}{% if u.id_usuario == yo %} <span class="secundario">(tú)</span>{% endif %}</td>
+                    <td class="secundario">{{ u.email }}</td>
+                    <td class="secundario">{{ u.fecha_registro or "—" }}</td>
+                    <td><span class="estado {{ u.rol }}">{{ u.rol | capitalize }}</span></td>
+                    <td class="numero">
+                        {% if u.id_usuario != yo %}
+                        <form method="POST" action="{{ url_for('admin.cambiar_rol', id_usuario=u.id_usuario) }}"
+                              onsubmit='return confirm({{ ("¿Cambiar el rol de " ~ u.nombre ~ "?") | tojson }});'>
+                            {% if u.rol == "admin" %}
+                            <input type="hidden" name="rol" value="cliente">
+                            <button type="submit" class="btn btn-claro btn-pequeno">Quitar admin</button>
+                            {% else %}
+                            <input type="hidden" name="rol" value="admin">
+                            <button type="submit" class="btn btn-oscuro btn-pequeno">Hacer admin</button>
+                            {% endif %}
+                        </form>
+                        {% else %}
+                        <span class="secundario">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <p class="vacio" id="sin-resultados" hidden>Ningún usuario coincide con la búsqueda.</p>
+    {% else %}
+    <div class="vacio">
+        <ion-icon name="people-outline"></ion-icon>
+        No se pudieron cargar los usuarios.
+    </div>
+    {% endif %}
+
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const buscador = document.getElementById("buscar-usuario");
+const filas = document.querySelectorAll("#tabla-usuarios tbody tr");
+const sinResultados = document.getElementById("sin-resultados");
+
+if (buscador) {
+    buscador.addEventListener("input", () => {
+        const texto = buscador.value.trim().toLowerCase();
+        let visibles = 0;
+
+        filas.forEach((fila) => {
+            const coincide = fila.dataset.buscar.includes(texto);
+            fila.hidden = !coincide;
+            if (coincide) visibles++;
+        });
+
+        if (sinResultados) sinResultados.hidden = visibles > 0;
+    });
+}
+</script>
+{% endblock %}

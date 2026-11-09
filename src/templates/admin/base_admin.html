@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Panel de administración{% endblock %} - {{ tienda.nombre_tienda }}</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="admin">
+
+{% block body %}
+<div class="admin-layout">
+
+    <!-- ========================= -->
+    <!-- MENÚ LATERAL -->
+    <!-- ========================= -->
+
+    <aside class="sidebar vetas">
+
+        <div class="sidebar-logo">
+            <a href="{{ url_for('admin.dashboard') }}">
+                <img src="{{ url_for('static', filename='img/woodart-wordmark.svg') }}" alt="{{ tienda.nombre_tienda }}">
+            </a>
+            <small>Panel de administración</small>
+        </div>
+
+        <nav>
+            <a href="{{ url_for('admin.dashboard') }}" class="{{ 'activo' if seccion == 'analiticas' }}">
+                <ion-icon name="stats-chart-outline"></ion-icon> Analíticas
+            </a>
+            <a href="{{ url_for('admin.configuracion') }}" class="{{ 'activo' if seccion == 'configuracion' }}">
+                <ion-icon name="settings-outline"></ion-icon> Configuración
+            </a>
+            <a href="{{ url_for('productos.nuevo') }}">
+                <ion-icon name="add-circle-outline"></ion-icon> Nuevo producto
+            </a>
+            <div class="separador"></div>
+            <a href="{{ url_for('home.index') }}" target="_blank">
+                <ion-icon name="storefront-outline"></ion-icon> Ver tienda
+            </a>
+        </nav>
+
+        {% set admin = session.get("usuario", {}) %}
+        <div class="sidebar-usuario">
+            <div class="avatar">{{ (admin.get("nombre") or "A")[0] | upper }}</div>
+            <div class="datos">
+                <strong>{{ admin.get("nombre") }} {{ admin.get("apellido") or "" }}</strong>
+                <span>{{ admin.get("email") }}</span>
+            </div>
+            <a href="{{ url_for('admin.logout') }}" title="Cerrar sesión" aria-label="Cerrar sesión">
+                <ion-icon name="log-out-outline"></ion-icon>
+            </a>
+        </div>
+
+    </aside>
+
+    <!-- ========================= -->
+    <!-- CONTENIDO -->
+    <!-- ========================= -->
+
+    <main class="admin-main">
+
+        {% include "admin/_mensajes.html" %}
+
+        {% if tienda.modo_mantenimiento %}
+        <div class="aviso-mantenimiento">
+            <ion-icon name="construct-outline"></ion-icon>
+            La tienda está en modo mantenimiento: los clientes no pueden entrar.
+            <a href="{{ url_for('admin.configuracion') }}">Cambiar</a>
+        </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+
+    </main>
+
+</div>
+{% endblock %}
+
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+{% block scripts %}{% endblock %}
+
+</body>
+</html>

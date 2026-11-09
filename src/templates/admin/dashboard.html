@@ -1,0 +1,279 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Analíticas{% endblock %}
+
+{% block content %}
+
+<div class="encabezado">
+    <div>
+        <h1>Analíticas</h1>
+        <p>
+            Resumen de ventas, pedidos, clientes e inventario.
+            {% if datos %}Actualizado: {{ datos.generado }}{% endif %}
+        </p>
+    </div>
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-claro btn-pequeno">
+        <ion-icon name="refresh-outline"></ion-icon> Actualizar
+    </a>
+</div>
+
+{% if not datos %}
+
+<div class="tarjeta vacio">
+    <ion-icon name="cloud-offline-outline"></ion-icon>
+    No se pudieron cargar las analíticas. Revisa que el backend esté corriendo.
+</div>
+
+{% else %}
+{% set r = datos.resumen %}
+
+<!-- ========================= -->
+<!-- INDICADORES PRINCIPALES -->
+<!-- ========================= -->
+
+<section class="kpis">
+
+    <div class="tarjeta kpi">
+        <div class="kpi-icono"><ion-icon name="cash-outline"></ion-icon></div>
+        <div>
+            <div class="kpi-etiqueta">Ingresos</div>
+            <div class="kpi-valor">{{ r.ingresos | cop_corto }}</div>
+            <div class="kpi-nota">{{ r.ingresos | cop }} en pedidos pagados</div>
+        </div>
+    </div>
+
+    <div class="tarjeta kpi">
+        <div class="kpi-icono"><ion-icon name="receipt-outline"></ion-icon></div>
+        <div>
+            <div class="kpi-etiqueta">Pedidos</div>
+            <div class="kpi-valor">{{ r.total_pedidos }}</div>
+            <div class="kpi-nota">{{ r.pedidos_vendidos }} pagados, enviados o entregados</div>
+        </div>
+    </div>
+
+    <div class="tarjeta kpi">
+        <div class="kpi-icono"><ion-icon name="pricetag-outline"></ion-icon></div>
+        <div>
+            <div class="kpi-etiqueta">Ticket promedio</div>
+            <div class="kpi-valor">{{ r.ticket_promedio | cop_corto }}</div>
+            <div class="kpi-nota">{{ r.ticket_promedio | cop }} por pedido</div>
+        </div>
+    </div>
+
+    <div class="tarjeta kpi">
+        <div class="kpi-icono"><ion-icon name="people-outline"></ion-icon></div>
+        <div>
+            <div class="kpi-etiqueta">Clientes</div>
+            <div class="kpi-valor">{{ r.total_clientes }}</div>
+            <div class="kpi-nota">{{ r.nuevos_usuarios_30d }} nuevos en los últimos 30 días</div>
+        </div>
+    </div>
+
+</section>
+
+<section class="mini-kpis">
+    <div class="mini-kpi"><span>Productos activos</span><strong>{{ r.productos_activos }} / {{ r.total_productos }}</strong></div>
+    <div class="mini-kpi {{ 'alerta' if r.sin_stock }}"><span>Sin stock</span><strong>{{ r.sin_stock }}</strong></div>
+    <div class="mini-kpi"><span>Valor del inventario</span><strong>{{ r.valor_inventario | cop_corto }}</strong></div>
+    <div class="mini-kpi"><span>Administradores</span><strong>{{ r.total_admins }}</strong></div>
+</section>
+
+<!-- ========================= -->
+<!-- VENTAS Y ESTADOS -->
+<!-- ========================= -->
+
+<section class="grid-2">
+
+    <div class="tarjeta">
+        <div class="tarjeta-titulo">
+            <h2>Ventas por mes</h2>
+            <span>Últimos 6 meses · pedidos pagados, enviados o entregados</span>
+        </div>
+
+        {% set max_venta = datos.ventas_por_mes | map(attribute='total') | max %}
+
+        {% if max_venta > 0 %}
+        <div class="barras" role="img" aria-label="Ventas por mes de los últimos 6 meses">
+            {% for v in datos.ventas_por_mes %}
+            <div class="barra-col" data-tip="{{ v.mes }}&#10;{{ v.total | cop }}&#10;{{ v.pedidos }} pedido{{ '' if v.pedidos == 1 else 's' }}">
+                <span class="barra-valor">{{ v.total | cop_corto if v.total else '—' }}</span>
+                <div class="barra" style="height: {{ (v.total / max_venta * 100) | round(1) }}%"></div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="barras-etiquetas">
+            {% for v in datos.ventas_por_mes %}<span>{{ v.mes.split(' ')[0] }}</span>{% endfor %}
+        </div>
+        {% else %}
+        <div class="vacio">
+            <ion-icon name="bar-chart-outline"></ion-icon>
+            Todavía no hay ventas en los últimos 6 meses.
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="tarjeta">
+        <div class="tarjeta-titulo">
+            <h2>Pedidos por estado</h2>
+            <span>{{ r.total_pedidos }} en total</span>
+        </div>
+
+        {% set max_estado = datos.pedidos_por_estado | map(attribute='cantidad') | max %}
+
+        <div class="filas-barras">
+            {% for e in datos.pedidos_por_estado %}
+            <div class="fila-barra">
+                <span class="nombre"><span class="estado {{ e.estado }}">{{ e.estado | capitalize }}</span></span>
+                <div class="pista">
+                    <div class="relleno oscuro" style="width: {{ (e.cantidad / max_estado * 100) | round(1) if max_estado else 0 }}%"></div>
+                </div>
+                <span class="valor">{{ e.cantidad }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</section>
+
+<!-- ========================= -->
+<!-- PRODUCTOS -->
+<!-- ========================= -->
+
+<section class="grid-2">
+
+    <div class="tarjeta">
+        <div class="tarjeta-titulo">
+            <h2>Productos más vendidos</h2>
+            <span>Por unidades, sin pedidos cancelados</span>
+        </div>
+
+        {% if datos.top_productos %}
+        {% set max_unidades = datos.top_productos[0].unidades %}
+        <div class="tabla-envoltura">
+            <table class="tabla">
+                <thead>
+                    <tr><th>#</th><th>Producto</th><th class="numero">Unidades</th><th class="numero">Ingresos</th></tr>
+                </thead>
+                <tbody>
+                    {% for p in datos.top_productos %}
+                    <tr>
+                        <td class="secundario">{{ loop.index }}</td>
+                        <td>{{ p.nombre }}</td>
+                        <td class="numero">
+                            <div class="mini-barra">
+                                <div class="pista"><div class="relleno" style="width: {{ (p.unidades / max_unidades * 100) | round(1) if max_unidades else 0 }}%"></div></div>
+                                {{ p.unidades }}
+                            </div>
+                        </td>
+                        <td class="numero">{{ p.ingresos | cop }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="vacio">
+            <ion-icon name="trophy-outline"></ion-icon>
+            Aún no hay productos vendidos.
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="tarjeta">
+        <div class="tarjeta-titulo">
+            <h2>Stock bajo</h2>
+            <span>{{ datos.umbral_stock_bajo }} unidades o menos</span>
+        </div>
+
+        {% if datos.stock_bajo %}
+        <ul class="lista">
+            {% for p in datos.stock_bajo %}
+            <li>
+                <span>{{ p.nombre }}</span>
+                {% if p.stock <= 0 %}
+                <span class="estado agotado">Agotado</span>
+                {% else %}
+                <span class="estado bajo">Quedan {{ p.stock }}</span>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <div class="vacio">
+            <ion-icon name="checkmark-done-outline"></ion-icon>
+            Todo el inventario está por encima del umbral.
+        </div>
+        {% endif %}
+    </div>
+
+</section>
+
+<!-- ========================= -->
+<!-- PEDIDOS RECIENTES Y CATEGORÍAS -->
+<!-- ========================= -->
+
+<section class="grid-2">
+
+    <div class="tarjeta">
+        <div class="tarjeta-titulo">
+            <h2>Últimos pedidos</h2>
+        </div>
+
+        {% if datos.ultimos_pedidos %}
+        <div class="tabla-envoltura">
+            <table class="tabla">
+                <thead>
+                    <tr><th>Pedido</th><th>Cliente</th><th>Fecha</th><th>Estado</th><th class="numero">Total</th></tr>
+                </thead>
+                <tbody>
+                    {% for p in datos.ultimos_pedidos %}
+                    <tr>
+                        <td class="secundario">#{{ p.id_pedido }}</td>
+                        <td>{{ p.cliente }}</td>
+                        <td class="secundario">{{ p.fecha }}</td>
+                        <td><span class="estado {{ p.estado }}">{{ p.estado | capitalize }}</span></td>
+                        <td class="numero">{{ p.total | cop }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="vacio">
+            <ion-icon name="receipt-outline"></ion-icon>
+            Todavía no hay pedidos.
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="tarjeta">
+        <div class="tarjeta-titulo">
+            <h2>Productos por categoría</h2>
+        </div>
+
+        {% if datos.productos_por_categoria %}
+        {% set max_cat = datos.productos_por_categoria | map(attribute='cantidad') | max %}
+        <div class="filas-barras">
+            {% for c in datos.productos_por_categoria %}
+            <div class="fila-barra">
+                <span class="nombre" title="{{ c.categoria }}">{{ c.categoria }}</span>
+                <div class="pista">
+                    <div class="relleno" style="width: {{ (c.cantidad / max_cat * 100) | round(1) if max_cat else 0 }}%"></div>
+                </div>
+                <span class="valor">{{ c.cantidad }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="vacio">
+            <ion-icon name="albums-outline"></ion-icon>
+            No hay categorías registradas.
+        </div>
+        {% endif %}
+    </div>
+
+</section>
+
+{% endif %}
+
+{% endblock %}

@@ -1,5 +1,35 @@
+# =========================================================
+# WoodArt - Frontend
+# =========================================================
+
+# Variables de entorno (SECRET_KEY, API_BASE_URL)
+.env
+.env.*
+!.env.example
+
+# Entornos virtuales
 .venv/
 venv/
+env/
+
+# Python compilado y cachés
 __pycache__/
-*.pyc
-.env
+*.py[cod]
+.pytest_cache/
+
+# Flask
+instance/
+.webassets-cache
+
+# Registros
+*.log
+
+# Editores
+.vscode/
+.idea/
+*.swp
+
+# Sistema operativo
+Thumbs.db
+desktop.ini
+.DS_Store

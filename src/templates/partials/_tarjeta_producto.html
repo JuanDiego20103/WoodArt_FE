@@ -1,0 +1,40 @@
+{# Tarjeta de producto reutilizable. Recibe la variable "producto". #}
+{% set agotado = producto.stock is defined and producto.stock is not none and producto.stock <= 0 %}
+
+<article class="card-producto">
+
+    <div class="card-imagen">
+        {% if agotado %}
+        <span class="etiqueta-producto agotado">Agotado</span>
+        {% endif %}
+
+        {% if producto.imagen_principal %}
+        <img src="{{ producto.imagen_principal }}" alt="{{ producto.nombre }}"
+             loading="lazy" onerror="imagenNoDisponible(this)">
+        {% else %}
+        <ion-icon name="image-outline" class="sin-foto"></ion-icon>
+        {% endif %}
+    </div>
+
+    <div class="card-cuerpo">
+
+        <h3>{{ producto.nombre }}</h3>
+
+        {% if producto.descripcion %}
+        <p class="descripcion">{{ producto.descripcion }}</p>
+        {% endif %}
+
+        <div class="card-pie">
+            <span class="precio">{{ producto.precio | cop }}</span>
+
+            <button type="button" class="btn-carrito"
+                    onclick="agregarAlCarrito({{ producto.id }}, this)"
+                    {{ 'disabled' if agotado }}>
+                <ion-icon name="cart-outline"></ion-icon>
+                {{ 'Sin stock' if agotado else 'Agregar' }}
+            </button>
+        </div>
+
+    </div>
+
+</article>

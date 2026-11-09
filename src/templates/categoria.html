@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+{# Plantilla base para las páginas de cada categoría #}
+
+{% block title %}{% block nombre_categoria %}{% endblock %} - {{ tienda.nombre_tienda }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/productos.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<main class="products-page">
+
+    <header class="banner-categoria vetas">
+        <span class="antetitulo">Categoría</span>
+        <h1>{{ self.nombre_categoria() }}</h1>
+        <p>{% block descripcion_categoria %}{% endblock %}</p>
+        {% if total_productos %}
+        <span class="conteo">{{ total_productos }} producto{{ '' if total_productos == 1 else 's' }}</span>
+        {% endif %}
+    </header>
+
+    <div class="contenedor">
+        {% include "partials/_filtros.html" %}
+        {% set mensaje_vacio = "No hay productos disponibles en esta categoría." %}
+        {% include "partials/_grid_productos.html" %}
+    </div>
+
+</main>
+
+{% endblock %}

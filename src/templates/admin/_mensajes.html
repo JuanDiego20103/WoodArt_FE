@@ -1,0 +1,12 @@
+{% with mensajes = get_flashed_messages(with_categories=true) %}
+{% if mensajes %}
+<div class="mensajes">
+    {% for categoria, mensaje in mensajes %}
+    <div class="mensaje {{ categoria }}" role="alert">
+        <ion-icon name="{{ 'checkmark-circle-outline' if categoria == 'success' else 'alert-circle-outline' }}"></ion-icon>
+        {{ mensaje }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
